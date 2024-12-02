@@ -21,8 +21,7 @@ namespace BG3ModdingUtil.ViewModels
         public RootViewModel()
         {
             ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
-            if(!Path.Exists(settings.BG3SteamFolder)&& !Path.Exists(settings.GameDataFolder)&&
-                !Path.Exists(settings.LoadOrderFolder)&& !Path.Exists(settings.ModsFolder))
+            if(!Path.Exists(settings.BG3SteamFolder)&& !Path.Exists(settings.ModsFolder))
             {
                 CurrentUserControl = new SettingsView();
             }

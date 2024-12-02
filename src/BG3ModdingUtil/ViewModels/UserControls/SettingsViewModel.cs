@@ -15,9 +15,9 @@ namespace BG3ModdingUtil.ViewModels
     public partial class SettingsViewModel: ObservableObject
     {
         [ObservableProperty]
-        public string _gameDataFolder = Path.Combine(Environment.CurrentDirectory, "GameData");
+        public bool _useVanillaReshade = true;
         [ObservableProperty]
-        public string _loadOrderFolder = Path.Combine(Environment.CurrentDirectory, "Load Orders");
+        public bool _useVanillaPartyCam = true;
         [ObservableProperty]
         public string _modsFolder = Path.Combine(Environment.CurrentDirectory, "Mods");
         [ObservableProperty]
@@ -29,10 +29,10 @@ namespace BG3ModdingUtil.ViewModels
             ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
             if(settings == null) settings = JsonSettings.Construct<ConfigSettings>();
 
-            settings.GameDataFolder = GameDataFolder;
-            settings.LoadOrderFolder = LoadOrderFolder;
+            settings.UseVanillaReshade = UseVanillaReshade;
+            settings.UseVanillaPartyCam = UseVanillaPartyCam;
             settings.ModsFolder = ModsFolder;
-            settings.BG3SteamFolder = _bg3SteamFolder;
+            settings.BG3SteamFolder = Bg3SteamFolder;
             settings.Save();
         }
 

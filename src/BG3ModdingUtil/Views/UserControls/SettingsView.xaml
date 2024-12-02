@@ -27,23 +27,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        
         <Grid Grid.Row="1" Margin="5,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="GameData Folder: " Margin="0,3,0,0"/>
-            <TextBox Grid.Column="1" Margin="5,0,0,0"  Width="350" Text="{Binding GameDataFolder, Mode=TwoWay}"/>
-        </Grid>
-        <Grid Grid.Row="2" Margin="5,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Load Orders Folder: " Margin="0,3,0,0"/>
-            <TextBox Grid.Column="1" Margin="5,0,0,0"  Width="350" Text="{Binding LoadOrderFolder, Mode=TwoWay}"/>
-        </Grid>
-        <Grid Grid.Row="3" Margin="5,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -51,13 +36,27 @@
             <TextBlock Grid.Column="0" Text="Mods Folder: " Margin="0,3,0,0"/>
             <TextBox Grid.Column="1" Margin="5,0,0,0"  Width="350" Text="{Binding ModsFolder, Mode=TwoWay}"/>
         </Grid>
-        <Grid Grid.Row="4" Margin="5,10,0,0">
+        <Grid Grid.Row="2" Margin="5,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="BG3 Install Folder: " Margin="0,3,0,0"/>
             <TextBox Grid.Column="1" Margin="5,0,0,0"  Width="350" Text="{Binding Bg3SteamFolder, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Grid.Row="3" Margin="5,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="0" Content="Include Reshade on Vanilla" Margin="0,3,0,0"/>
+        </Grid>
+        <Grid Grid.Row="4" Margin="5,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="0" Content="Include Party Size and Camera in Vanilla (Includes Reshade)" Margin="0,3,0,0"/>
         </Grid>
 
         <Button Grid.Row="5" Content="Save" Command="{Binding SaveSettingsCommand}" Margin="10" Width="70" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}"/>

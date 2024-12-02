@@ -25,20 +25,6 @@ namespace BG3ModdingUtil.ViewModels.UserControls
 
         private readonly VFileSystem _vfs = new();
 
-        private string _modSettingsFile;
-        private string _vanillaModSettings;
-        private string _moddedModSettings;
-        private string _reshadeIni;
-        private string _bgExe;
-        private string _bgExeSteam;
-        private string _bgDxExe;
-        private string _bgDxExeSteam;
-        private List<string> _modPaks;
-        private List<string> _generalDataBinFolders;
-        private List<string> _generalDataBinFiles;
-        private List<string> _generalDataDataFiles;
-        private List<string> _generalDataDataFolders;
-
 
         [ObservableProperty]
         private List<string> _modProfiles;
@@ -70,7 +56,7 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         private void GetModProfileNames()
         {
             var modProfiles = GetModProfiles();
-            List<string> names = [VANILLA_PROFILE];
+            List<string> names = new();
             foreach ( var modProfile in modProfiles )
             {
                 names.Add(Path.GetFileNameWithoutExtension(modProfile));
@@ -80,7 +66,7 @@ namespace BG3ModdingUtil.ViewModels.UserControls
 
         private IEnumerable<string> GetModProfiles()
         {
-            var modProfiles = new List<string>();
+            List<string> modProfiles = [VANILLA_PROFILE];
             var subfolders = Directory.GetDirectories(Globals.UtilModProfilesFolder);
             foreach (var subfolder in subfolders)
             {
@@ -102,6 +88,15 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             _vfs.MakeSymbolicLink(vanillaLsx, Globals.BG3ModSettingsLsx);
 
             //TODO: include section for IncludeRoot and IncludeReshade
+            ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
+            if (settings.UseVanillaReshade)
+            {
+                IncludeReshadeVanilla();
+            }
+            if(settings.UseVanillaPartyCam)
+            {
+                IncludePartyCamVanilla();
+            }
         }
 
         [RelayCommand]
@@ -158,6 +153,74 @@ namespace BG3ModdingUtil.ViewModels.UserControls
 
         }
 
+        private void IncludeReshadeVanilla()
+        {
+            var profileBin = Path.Combine(Globals.UtilVanillaProfileFolder, BIN);
+            var reshadeIni = Path.Combine(profileBin, RESHADE_CONFIG);
+            if (!File.Exists(reshadeIni))
+            {
+                string reshadeshaders = Path.Combine(profileBin, "reshade-shaders");
+                string reshadepresets = Path.Combine(profileBin, "reshade-presets");
+                string reshadelog = Path.Combine(profileBin, "Reshade.log");
+                _vfs.MakeJunction(reshadeshaders, Globals.SteamBINFolder);
+                _vfs.MakeJunction(reshadepresets, Globals.SteamBINFolder);
+                _vfs.MakeSymbolicLink(reshadeIni, Globals.SteamBINFolder);
+                _vfs.MakeSymbolicLink(reshadelog, Globals.SteamBINFolder);
+            }
+        }
+
+        private void IncludePartyCamVanilla()
+        {            
+            var vanillaBinFolders = Directory.GetDirectories(Path.Combine(Globals.UtilVanillaProfileFolder, BIN)).ToList();
+            var vanillaDataFiles = Directory.GetFiles(Path.Combine(Globals.UtilVanillaProfileFolder, GAME_DATA)).ToList();
+
+            if (vanillaBinFolders.Count != 0)
+            {
+                foreach (string dir in vanillaBinFolders)
+                {
+                    _vfs.MakeJunction(dir, Globals.SteamBINFolder);
+                }
+            }
+            if (vanillaBinFolders.Count != 0)
+            {
+                foreach (string file in vanillaBinFolders)
+                {
+                    FileInfo fileInfo = new(file);
+                    if (fileInfo.Name != "DWrite.dll")
+                    {
+                        _vfs.MakeSymbolicLink(file, Globals.SteamBINFolder);
+                    }
+                }
+            }
+
+            if (vanillaDataFiles.Count != 0)
+            {
+                foreach (string dir in vanillaDataFiles)
+                {
+                    DirectoryInfo directoryInfo = new(dir);
+                    if (directoryInfo.Name == "Mods")
+                    {
+                        _vfs.MakeJunction(dir, Globals.SteamDataFolder);
+                    }
+                    else if (directoryInfo.Name == "PatchFiles")
+                    {
+                        _vfs.MakeJunction(dir, Globals.SteamDataFolder);
+                    }
+                }
+            }
+            if (vanillaDataFiles.Count != 0)
+            {
+                foreach (string file in vanillaDataFiles)
+                {
+                    FileInfo fileInfo = new(file);
+                    if (fileInfo.Name == "PartyLimitBegonePatcher.bat")
+                    {
+                        _vfs.MakeSymbolicLink(file, Globals.SteamDataFolder);
+                    }
+                }
+            }
+        }
+
         private void RemoveInstall()
         {
             List<string> steambinfolders = Directory.GetDirectories(Globals.SteamBINFolder).ToList();
@@ -212,9 +275,9 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 }
             }
 
-            if (File.Exists(_modSettingsFile))
+            if (File.Exists(Globals.BG3ModSettingsLsx))
             {
-                File.Delete(_modSettingsFile);
+                File.Delete(Globals.BG3ModSettingsLsx);
             }
         }
 

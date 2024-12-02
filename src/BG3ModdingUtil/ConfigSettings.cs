@@ -11,9 +11,9 @@ namespace BG3ModdingUtil
     {
         public override string FileName { get; set; } = "Bg3ModdingUtil.config.json";
 
-        public string GameDataFolder { get; set; }
-        public string LoadOrderFolder { get; set; }
         public string ModsFolder { get; set; }
         public string BG3SteamFolder { get; set; }
+        public bool UseVanillaReshade { get; set; }
+        public bool UseVanillaPartyCam { get; set; }
     }
 }
