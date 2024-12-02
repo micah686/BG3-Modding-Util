@@ -1,0 +1,12 @@
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudio,csharp
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,csharp
+
+
+
+
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+./idea/
+
+
