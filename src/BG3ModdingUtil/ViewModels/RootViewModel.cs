@@ -18,16 +18,19 @@ namespace BG3ModdingUtil.ViewModels
         [ObservableProperty]
         private UserControl _currentUserControl;
 
+        private UserControl _settingsView = new SettingsView();
+        private UserControl _mainView = new MainView();
+
         public RootViewModel()
         {
             ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
             if(!Path.Exists(settings.BG3SteamFolder)&& !Path.Exists(settings.ModsFolder))
             {
-                CurrentUserControl = new SettingsView();
+                CurrentUserControl = _settingsView;
             }
             else
             {
-                CurrentUserControl = new MainView();
+                CurrentUserControl = _mainView;
             }
 
         }
@@ -35,13 +38,13 @@ namespace BG3ModdingUtil.ViewModels
         [RelayCommand]
         public void ShowSettingsView()
         {
-            CurrentUserControl = new SettingsView();
+            CurrentUserControl = _settingsView;
         }
 
         [RelayCommand]
         public void ShowMainView()
         {
-            CurrentUserControl = new MainView();
+            CurrentUserControl = _mainView;
         }
 
         [RelayCommand]
@@ -49,11 +52,11 @@ namespace BG3ModdingUtil.ViewModels
         {
             if(CurrentUserControl.GetType() == typeof(MainView))
             {
-                CurrentUserControl = new SettingsView();
+                CurrentUserControl = _settingsView;
             }
             else
             {
-                CurrentUserControl = new MainView();
+                CurrentUserControl = _mainView;
             }
         }
     }

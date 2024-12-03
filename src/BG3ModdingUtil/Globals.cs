@@ -85,22 +85,6 @@ namespace BG3ModdingUtil
         public static string SteamBINFolder = System.IO.Path.Combine(SteamFolder, "bin");
         public static string SteamDataFolder = System.IO.Path.Combine(SteamFolder, "Data");
 
-        public static void MakeExceptionReport(StringBuilder stringBuilder)
-        {
-            Directory.CreateDirectory(UtilLogsDirectory);
-
-            string fileName = $"BGMU_Exception_Report_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.log";
-            string fullPath = Path.Combine(UtilLogsDirectory, fileName);
-            using (FileStream fileStream = new(fullPath, FileMode.CreateNew))
-            {
-                using (StreamWriter streamWriter = new(fileStream))
-                {
-                    streamWriter.Write(stringBuilder.ToString());
-                    streamWriter.Flush();
-                    streamWriter.Close();
-                }
-                fileStream.Close();
-            }
-        }
+        
     }
 }

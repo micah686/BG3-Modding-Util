@@ -24,7 +24,6 @@ namespace BG3ModdingUtil.Views.UserControls
         public MainView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }

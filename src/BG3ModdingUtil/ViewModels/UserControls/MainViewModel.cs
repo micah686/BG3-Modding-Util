@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nucs.JsonSettings;
-using SSA.VirtualFileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,13 +22,15 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         private const string GAME_DATA = "GameData";
         private const string BIN = "Bin";
 
-        private readonly VFileSystem _vfs = new();
+        //private readonly VirtualFileSystem VirtualFileSystem;
 
 
         [ObservableProperty]
         private List<string> _modProfiles;
         [ObservableProperty]
-        private int _modSelectedIndex =1;
+        private int _modSelectedIndex =0;
+        [ObservableProperty]
+        private string _bg3SteamPath = Globals.SteamFolder;
 
         #endregion
 
@@ -51,6 +52,17 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             Directory.CreateDirectory(Globals.UtilModProfilesFolder);
             Directory.CreateDirectory(Globals.UtilVanillaProfileFolder);
 
+            //Vanilla
+            Directory.CreateDirectory(Path.Combine(Globals.UtilVanillaProfileFolder, MOD_PAKS));
+            Directory.CreateDirectory(Path.Combine(Globals.UtilVanillaProfileFolder, GAME_DATA));
+            Directory.CreateDirectory(Path.Combine(Globals.UtilVanillaProfileFolder, BIN));
+
+            //ModProfile
+            Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", MOD_PAKS));
+            Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", GAME_DATA));
+            Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", BIN));
+
+            Bg3SteamPath = Globals.SteamFolder;
         }
 
         private void GetModProfileNames()
@@ -79,13 +91,29 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             return modProfiles;
         }
 
+        [RelayCommand]
+        private void ApplyChanges()
+        {
+            var entry = ModProfiles[ModSelectedIndex];
+            if(entry == null) return;
+
+            if(entry == "Vanilla")
+            {
+                UseVanillaProfile();
+            }
+            else
+            {
+                UseModdedProfile();
+            }
+        }
 
         [RelayCommand]
         private void UseVanillaProfile()
         {
             RemoveInstall();
             var vanillaLsx = Path.Combine(Globals.UtilVanillaProfileFolder, $"{VANILLA_PROFILE}.lsx");
-            _vfs.MakeSymbolicLink(vanillaLsx, Globals.BG3ModSettingsLsx);
+            bool state = VirtualFileSystem.MakeSymbolicLinkDirect(vanillaLsx, Globals.BG3ModSettingsLsx);
+            if(state == false) return;
 
             //TODO: include section for IncludeRoot and IncludeReshade
             ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
@@ -111,15 +139,17 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             var profileDataFolders = Directory.GetDirectories(Path.Combine(modDir, GAME_DATA));
             var profileDataFiles = Directory.GetFiles(Path.Combine(modDir, GAME_DATA));
             RemoveInstall();
-
+            bool state;
             foreach (string file in modPaks)
             {
                 FileInfo fileInfo = new(file);
-                _vfs.MakeSymbolicLink(fileInfo.FullName, Globals.BG3ModsFolder);
+                state = VirtualFileSystem.MakeSymbolicLinkAuto(fileInfo.FullName, Globals.BG3ModsFolder);
+                if (state == false) return;
             }
             foreach (string dir in profileBinFolders)
             {
-                _vfs.MakeJunction(dir, Globals.SteamBINFolder);
+                state = VirtualFileSystem.MakeJunction(dir, Globals.SteamBINFolder);
+                if (state == false) return;
             }
             foreach (string file in profileBinFiles)
             {
@@ -129,27 +159,32 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                     FileAttributes attr = fileInfo.Attributes;
                     if (!attr.HasFlag(FileAttributes.ReparsePoint))
                     {
-                        _vfs.MakeSymbolicLink(file, Globals.SteamBINFolder);
+                        state = VirtualFileSystem.MakeSymbolicLinkAuto(file, Globals.SteamBINFolder);
+                        if (state == false) return;
                     }
                 }
                 else
                 {
-                    _vfs.MakeSymbolicLink(file, Globals.SteamBINFolder);
+                    state = VirtualFileSystem.MakeSymbolicLinkAuto(file, Globals.SteamBINFolder);
+                    if (state == false) return;
                 }
             }
             foreach (string dir in profileDataFolders)
             {
-                _vfs.MakeJunction(dir, Globals.SteamDataFolder);
+                state = VirtualFileSystem.MakeJunction(dir, Globals.SteamDataFolder);
+                if (state == false) return;
             }
             foreach (string file in profileDataFiles)
             {
-                _vfs.MakeSymbolicLink(file, Globals.SteamDataFolder);
+                state = VirtualFileSystem.MakeSymbolicLinkAuto(file, Globals.SteamDataFolder);
+                if (state == false) return;
             }
             if (File.Exists(Globals.BG3ModSettingsLsx))
             {
                 File.Delete(Globals.BG3ModSettingsLsx);
             }
-            _vfs.MakeSymbolicLink(modLsx, Globals.BG3ModSettingsLsx);
+            state = VirtualFileSystem.MakeSymbolicLinkAuto(modLsx, Globals.BG3ModSettingsLsx);
+            if (state == false) return;
 
         }
 
@@ -157,15 +192,20 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         {
             var profileBin = Path.Combine(Globals.UtilVanillaProfileFolder, BIN);
             var reshadeIni = Path.Combine(profileBin, RESHADE_CONFIG);
+            bool state;
             if (!File.Exists(reshadeIni))
             {
                 string reshadeshaders = Path.Combine(profileBin, "reshade-shaders");
                 string reshadepresets = Path.Combine(profileBin, "reshade-presets");
                 string reshadelog = Path.Combine(profileBin, "Reshade.log");
-                _vfs.MakeJunction(reshadeshaders, Globals.SteamBINFolder);
-                _vfs.MakeJunction(reshadepresets, Globals.SteamBINFolder);
-                _vfs.MakeSymbolicLink(reshadeIni, Globals.SteamBINFolder);
-                _vfs.MakeSymbolicLink(reshadelog, Globals.SteamBINFolder);
+                state = VirtualFileSystem.MakeJunction(reshadeshaders, Globals.SteamBINFolder);
+                if (state == false) return;
+                state = VirtualFileSystem.MakeJunction(reshadepresets, Globals.SteamBINFolder);
+                if (state == false) return;
+                state = VirtualFileSystem.MakeSymbolicLinkAuto(reshadeIni, Globals.SteamBINFolder);
+                if (state == false) return;
+                state = VirtualFileSystem.MakeSymbolicLinkAuto(reshadelog, Globals.SteamBINFolder);
+                if (state == false) return;
             }
         }
 
@@ -173,12 +213,13 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         {            
             var vanillaBinFolders = Directory.GetDirectories(Path.Combine(Globals.UtilVanillaProfileFolder, BIN)).ToList();
             var vanillaDataFiles = Directory.GetFiles(Path.Combine(Globals.UtilVanillaProfileFolder, GAME_DATA)).ToList();
-
+            bool state;
             if (vanillaBinFolders.Count != 0)
             {
                 foreach (string dir in vanillaBinFolders)
                 {
-                    _vfs.MakeJunction(dir, Globals.SteamBINFolder);
+                    state = VirtualFileSystem.MakeJunction(dir, Globals.SteamBINFolder);
+                    if (state == false) return;
                 }
             }
             if (vanillaBinFolders.Count != 0)
@@ -188,7 +229,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                     FileInfo fileInfo = new(file);
                     if (fileInfo.Name != "DWrite.dll")
                     {
-                        _vfs.MakeSymbolicLink(file, Globals.SteamBINFolder);
+                        state = VirtualFileSystem.MakeSymbolicLinkAuto(file, Globals.SteamBINFolder);
+                        if (state == false) return;
                     }
                 }
             }
@@ -200,11 +242,13 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                     DirectoryInfo directoryInfo = new(dir);
                     if (directoryInfo.Name == "Mods")
                     {
-                        _vfs.MakeJunction(dir, Globals.SteamDataFolder);
+                        state = VirtualFileSystem.MakeJunction(dir, Globals.SteamDataFolder);
+                        if (state == false) return;
                     }
                     else if (directoryInfo.Name == "PatchFiles")
                     {
-                        _vfs.MakeJunction(dir, Globals.SteamDataFolder);
+                        state = VirtualFileSystem.MakeJunction(dir, Globals.SteamDataFolder);
+                        if (state == false) return;
                     }
                 }
             }
@@ -215,7 +259,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                     FileInfo fileInfo = new(file);
                     if (fileInfo.Name == "PartyLimitBegonePatcher.bat")
                     {
-                        _vfs.MakeSymbolicLink(file, Globals.SteamDataFolder);
+                        state = VirtualFileSystem.MakeSymbolicLinkAuto(file, Globals.SteamDataFolder);
+                        if (state == false) return;
                     }
                 }
             }
@@ -228,6 +273,7 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             List<string> steamdatafolders = Directory.GetDirectories(Globals.SteamDataFolder).ToList();
             List<string> steamdatafiles = Directory.GetFiles(Globals.SteamDataFolder).ToList();
             List<string> modfiles = Directory.GetFiles(Globals.BG3ModsFolder).ToList();
+            bool state;
 
             foreach (string file in steambinfiles)
             {
@@ -235,7 +281,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 FileAttributes attr = fileInfo.Attributes;
                 if (attr.HasFlag(FileAttributes.ReparsePoint))
                 {
-                    _vfs.RemoveSymbolicLink(file);
+                    state = VirtualFileSystem.RemoveSymbolicLink(file);
+                    if (state == false) return;
                 }
             }
             foreach (string dir in steambinfolders)
@@ -244,7 +291,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 FileAttributes attr = dirInfo.Attributes;
                 if (attr.HasFlag(FileAttributes.ReparsePoint))
                 {
-                    _vfs.RemoveJunction(dir);
+                    state = VirtualFileSystem.RemoveJunction(dir);
+                    if (state == false) return;
                 }
             }
             foreach (string file in steamdatafiles)
@@ -253,7 +301,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 FileAttributes attr = fileInfo.Attributes;
                 if (attr.HasFlag(FileAttributes.ReparsePoint))
                 {
-                    _vfs.RemoveSymbolicLink(file);
+                    state = VirtualFileSystem.RemoveSymbolicLink(file);
+                    if (state == false) return;
                 }
             }
             foreach (string dir in steamdatafolders)
@@ -262,7 +311,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 FileAttributes attr = dirInfo.Attributes;
                 if (attr.HasFlag(FileAttributes.ReparsePoint))
                 {
-                    _vfs.RemoveJunction(dir);
+                    state = VirtualFileSystem.RemoveJunction(dir);
+                    if (state == false) return;
                 }
             }
             foreach (string file in modfiles)
@@ -271,7 +321,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                 FileAttributes attr = fileInfo.Attributes;
                 if (attr.HasFlag(FileAttributes.ReparsePoint))
                 {
-                    _vfs.RemoveSymbolicLink(file);
+                    state = VirtualFileSystem.RemoveSymbolicLink(file);
+                    if (state == false) return;
                 }
             }
 

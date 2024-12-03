@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Remove="MainViewModel.cs" />
+    <Compile Remove="VirtualFileSystemOld.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,7 +24,6 @@ namespace BG3ModdingUtil.Views
         public SettingsView()
         {
             InitializeComponent();
-            DataContext = new SettingsViewModel();
         }
     }
 }
