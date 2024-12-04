@@ -43,9 +43,13 @@
             <TextBlock Grid.Column="0" Text="Mod Profiles: " Margin="0,12,0,0"/>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ModProfiles}" SelectedIndex="{Binding ModSelectedIndex}" Width="250" Margin="10"/>
         </Grid>
-        <Grid Grid.Row="3" Margin="5,170,0,0" HorizontalAlignment="Center">
+        <Grid Grid.Row="3" Margin="5,0,0,0" HorizontalAlignment="Center">
+            <TextBlock Grid.Column="0" Text="{Binding TextStatus}" Margin="0,12,0,0"/>
+        </Grid>
+        <Grid Grid.Row="4" Margin="5,140,0,0" HorizontalAlignment="Center">
             <Button Content="Apply" Width="250" Height="30" Margin="10" Command="{Binding ApplyChangesCommand}"/>
         </Grid>
+        
 
 
     </Grid>

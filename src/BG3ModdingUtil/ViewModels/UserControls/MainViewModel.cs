@@ -32,6 +32,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         private int _modSelectedIndex =0;
         [ObservableProperty]
         private string _bg3SteamPath = Globals.SteamFolder;
+        [ObservableProperty]
+        private string _textStatus = "";
 
         #endregion
 
@@ -71,13 +73,8 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", GAME_DATA));
             Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", BIN));
 
-            //This creates a temp file in the %temp% directory called backgroundMusic.wav
             using (FileStream fileStream = File.Create(Path.Combine(Globals.UtilModProfilesFolder, "Template", "template.lsx")))
             {
-
-                //This looks into the assembly and gets the resource by name
-                //For this to work, you need to use the full application path to the resource
-                //You get this by using your project name following by the folder tree to your item
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("BG3ModdingUtil.template.lsx").CopyTo(fileStream);
             }
         }
@@ -88,7 +85,13 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             List<string> names = new();
             foreach ( var modProfile in modProfiles )
             {
-                names.Add(Path.GetFileNameWithoutExtension(modProfile));
+                if(modProfile == VANILLA_PROFILE)
+                {
+                    names.Add(VANILLA_PROFILE);
+                    continue;
+                }
+                //names.Add(Path.GetFileNameWithoutExtension(modProfile));
+                names.Add(Path.GetFileName(Path.GetDirectoryName(modProfile)));
             }
             ModProfiles = names;
         }
@@ -116,12 +119,15 @@ namespace BG3ModdingUtil.ViewModels.UserControls
 
             if(entry == "Vanilla")
             {
+                TextStatus = "Applying Vanilla Profile";
                 UseVanillaProfile();
             }
             else
             {
+                TextStatus = "Applying Modded Profile";
                 UseModdedProfile();
             }
+            TextStatus = "Done Applying";
         }
 
         [RelayCommand]
