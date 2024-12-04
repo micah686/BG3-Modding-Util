@@ -19,7 +19,7 @@ namespace BG3ModdingUtil.ViewModels
         [ObservableProperty]
         public bool _useVanillaPartyCam = true;
         [ObservableProperty]
-        public string _modsFolder = Path.Combine(Environment.CurrentDirectory, "Mods");
+        public string _modsFolder = Path.Combine(Environment.CurrentDirectory, "ModProfiles");
         [ObservableProperty]
         public string _bg3SteamFolder = @"C:\Program Files (x86)\Steam\steamapps\common\Baldurs Gate 3";
 

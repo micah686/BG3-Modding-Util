@@ -48,16 +48,5 @@
         </Grid>
 
 
-
-        <!--<adonisControls:SplitButton Grid.Column="4" Content="Split Button"
-        Command="{Binding DefaultCommand}">
-            <adonisControls:SplitButton.SplitMenu>
-                <ContextMenu MinWidth="{Binding PlacementTarget.ActualWidth, RelativeSource={RelativeSource Self}}" 
-                     ItemsSource="{Binding ModProfiles}"
-                     />
-
-            </adonisControls:SplitButton.SplitMenu>
-        </adonisControls:SplitButton>-->
-
     </Grid>
 </UserControl>

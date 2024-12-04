@@ -18,45 +18,67 @@ namespace BG3ModdingUtil.ViewModels
         [ObservableProperty]
         private UserControl _currentUserControl;
 
-        private UserControl _settingsView = new SettingsView();
-        private UserControl _mainView = new MainView();
+        private UserControl _settingsView;
+        private UserControl _mainView;
 
         public RootViewModel()
         {
             ConfigSettings settings = JsonSettings.Load<ConfigSettings>();
             if(!Path.Exists(settings.BG3SteamFolder)&& !Path.Exists(settings.ModsFolder))
             {
-                CurrentUserControl = _settingsView;
+                if(_settingsView == null)
+                {
+                    _settingsView = new SettingsView();
+                    CurrentUserControl = _settingsView;
+                }
+                else
+                {
+                    CurrentUserControl = _settingsView;
+                }
             }
             else
             {
-                CurrentUserControl = _mainView;
+                if(_mainView == null)
+                {
+                    _mainView = new MainView();
+                    CurrentUserControl = _mainView;
+                }
+                else
+                {
+                    CurrentUserControl = _mainView;
+                }
             }
 
         }
 
-        [RelayCommand]
-        public void ShowSettingsView()
-        {
-            CurrentUserControl = _settingsView;
-        }
 
-        [RelayCommand]
-        public void ShowMainView()
-        {
-            CurrentUserControl = _mainView;
-        }
 
         [RelayCommand]
         public void ToggleView()
         {
             if(CurrentUserControl.GetType() == typeof(MainView))
             {
-                CurrentUserControl = _settingsView;
+                if (_settingsView == null)
+                {
+                    _settingsView = new SettingsView();
+                    CurrentUserControl = _settingsView;
+                }
+                else
+                {
+                    CurrentUserControl = _settingsView;
+                }
             }
             else
             {
-                CurrentUserControl = _mainView;
+                if (_mainView == null)
+                {
+                    _mainView = new MainView();
+                    CurrentUserControl = _mainView;
+                }
+                else
+                {
+                    CurrentUserControl = _mainView;
+                }
             }
         }
     }

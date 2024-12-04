@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         public MainViewModel()
         {
             InitPaths();
+            CreateFolders();
             GetModProfileNames();
         }
 
@@ -52,6 +54,13 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             Directory.CreateDirectory(Globals.UtilModProfilesFolder);
             Directory.CreateDirectory(Globals.UtilVanillaProfileFolder);
 
+            
+
+            Bg3SteamPath = Globals.SteamFolder;
+        }
+
+        private void CreateFolders()
+        {
             //Vanilla
             Directory.CreateDirectory(Path.Combine(Globals.UtilVanillaProfileFolder, MOD_PAKS));
             Directory.CreateDirectory(Path.Combine(Globals.UtilVanillaProfileFolder, GAME_DATA));
@@ -62,7 +71,15 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", GAME_DATA));
             Directory.CreateDirectory(Path.Combine(Globals.UtilModProfilesFolder, "Template", BIN));
 
-            Bg3SteamPath = Globals.SteamFolder;
+            //This creates a temp file in the %temp% directory called backgroundMusic.wav
+            using (FileStream fileStream = File.Create(Path.Combine(Globals.UtilModProfilesFolder, "Template", "template.lsx")))
+            {
+
+                //This looks into the assembly and gets the resource by name
+                //For this to work, you need to use the full application path to the resource
+                //You get this by using your project name following by the folder tree to your item
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("BG3ModdingUtil.template.lsx").CopyTo(fileStream);
+            }
         }
 
         private void GetModProfileNames()
@@ -183,7 +200,7 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             {
                 File.Delete(Globals.BG3ModSettingsLsx);
             }
-            state = VirtualFileSystem.MakeSymbolicLinkAuto(modLsx, Globals.BG3ModSettingsLsx);
+            state = VirtualFileSystem.MakeSymbolicLinkDirect(modLsx, Globals.BG3ModSettingsLsx);
             if (state == false) return;
 
         }
