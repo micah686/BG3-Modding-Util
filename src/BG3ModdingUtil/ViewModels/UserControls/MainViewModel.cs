@@ -23,8 +23,6 @@ namespace BG3ModdingUtil.ViewModels.UserControls
         private const string GAME_DATA = "GameData";
         private const string BIN = "Bin";
 
-        //private readonly VirtualFileSystem VirtualFileSystem;
-
 
         [ObservableProperty]
         private List<string> _modProfiles;
@@ -90,7 +88,6 @@ namespace BG3ModdingUtil.ViewModels.UserControls
                     names.Add(VANILLA_PROFILE);
                     continue;
                 }
-                //names.Add(Path.GetFileNameWithoutExtension(modProfile));
                 names.Add(Path.GetFileName(Path.GetDirectoryName(modProfile)));
             }
             ModProfiles = names;
@@ -121,13 +118,15 @@ namespace BG3ModdingUtil.ViewModels.UserControls
             {
                 TextStatus = "Applying Vanilla Profile";
                 UseVanillaProfile();
+                TextStatus = "Done Applying Vanilla";
             }
             else
             {
-                TextStatus = "Applying Modded Profile";
+                TextStatus = $"Applying {entry} Profile";
                 UseModdedProfile();
+                TextStatus = $"Done Applying {entry}";
             }
-            TextStatus = "Done Applying";
+            
         }
 
         [RelayCommand]
