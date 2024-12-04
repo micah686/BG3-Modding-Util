@@ -17,8 +17,10 @@
     <controls:AdonisWindow.TitleBarContent>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Style="{DynamicResource {x:Static adonisUi:Styles.WindowButton}}" Command="{Binding ToggleViewCommand}">
-                <iconPacks:PackIconMaterial Kind="{x:Static iconPacks:PackIconMaterialKind.CogOutline}" Foreground="DeepSkyBlue" />
-                
+                <!--<iconPacks:PackIconMaterial Kind="{x:Static iconPacks:PackIconMaterialKind.CogOutline}" Foreground="DeepSkyBlue" />-->
+                <Image Source="pack://application:,,,/BG3ModdingUtil;component/Images/Settings.png" Width="20" Height="20" />
+
+
             </Button>
 
         </StackPanel>
